@@ -1,0 +1,93 @@
+# Backstage override configuration for your local development environment
+app:
+  listen:
+    host: 0.0.0.0
+
+auth:
+  environment: development
+  providers:
+    github:
+      development:
+        clientId: { VALUE }
+        clientSecret: { VALUE }
+        ## uncomment if using GitHub Enterprise
+        # enterpriseInstanceUrl: ${AUTH_GITHUB_ENTERPRISE_INSTANCE_URL}
+        ## uncomment to set lifespan of user session
+        # sessionDuration: { hours: 24 } # supports `ms` library format (e.g. '24h', '2 days'), ISO duration, "human duration" as used in code
+        signIn:
+          resolvers:
+            # See https://backstage.io/docs/auth/github/provider#resolvers for more resolvers
+            - resolver: emailMatchingUserEntityProfileEmail
+    google:
+      development:
+        clientId: { VALUE }
+        clientSecret: { VALUE }
+        signIn:
+          resolvers:
+            # See https://backstage.io/docs/auth/google/provider#resolvers for more resolvers
+            - resolver: emailMatchingUserEntityProfileEmail
+catalog:
+  rules:
+    - allow: [Component, System, API, Resource, Location]
+  locations:
+    # Local example data, file locations are relative to the backend process, typically `packages/backend`
+    - type: file
+      target: ../../catalog/entities/users.yaml
+      rules:
+        - allow: [User]
+    - type: file
+      target: ../../catalog/entities/groups.yaml
+      rules:
+        - allow: [Group]
+      # 템플릿 추가
+    - type: url
+      target: https://github.com/limhoooo/backstage-software-templates/blob/main/python-app/template.yaml
+      rules:
+        - allow: [Template]
+    - type: url
+      target: https://github.com/limhoooo/backstage-software-templates/blob/main/test-template/template.yaml
+      rules:
+        - allow: [Template]
+
+proxy:
+  '/argocd/api':
+    target: https://localhost:9000/api/v1/
+    changeOrigin: true
+    secure: false
+    headers:
+      Cookie:
+        $env: ARGOCD_AUTH_TOKEN
+
+  '/jira/api':
+    target: https://limhoooo.atlassian.net
+    headers:
+      Authorization: ${JIRA_TOKEN}
+      Accept: 'application/json'
+      Content-Type: 'application/json'
+      X-Atlassian-Token: 'nocheck'
+      User-Agent: 'MY-UA-STRING'
+
+# mkdocs 설정
+techdocs:
+  builder: 'local'
+  publisher:
+    type: 'local'
+  generator:
+    runIn: local
+
+# github actions
+integrations:
+  github:
+    - host: github.com
+      token: { VALUE }
+
+jenkins:
+  baseUrl: http://localhost:8080
+  username: admin
+  projectCountLimit: 100
+  apiKey: { VALUE }
+
+jiraDashboard:
+  annotationPrefix: jira
+  token: JIRA_TOKEN
+  baseUrl: https://limhoooo.atlassian.net/rest/api/3/
