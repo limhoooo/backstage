@@ -1,0 +1,61 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: python-template
+  title: Python flask template
+  description: Provisions a minimalistic flask application
+spec:
+  owner: development
+  type: service
+
+  parameters:
+    - title: Fill in some steps
+      required:
+        - component_id
+        - environment
+      properties:
+        component_id:
+          title: Component name
+          type: string
+          description: Provide a component (microservice) name
+          pattern: "^([a-zA-Z][a-zA-Z0-9]*)(-[a-zA-Z0-9]+)*$"
+        environment:
+          title: Environment
+          type: string
+          description: The environment where this component will be deployed
+          enum:
+            - dev
+            - prod
+
+  steps:
+    - id: fetch-base
+      name: Fetch Base
+      action: fetch:template
+      input:
+        url: ./template
+        values:
+          app_name: ${{parameters.component_id}}
+          app_env: ${{parameters.environment}}
+
+    - id: publish
+      name: Publish
+      action: publish:github
+      input:
+        allowedHosts:
+          - github.com
+        description: This is ${{ parameters.component_id }}
+        repoUrl: github.com?owner=limhoooo&repo=${{parameters.component_id}}
+        protectDefaultBranch: false
+        repoVisibility: public
+
+    - id: register
+      name: Register
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
+        catalogInfoPath: "/catalog-info.yaml"
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['publish'].output.remoteUrl }}

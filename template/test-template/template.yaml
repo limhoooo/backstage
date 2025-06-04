@@ -1,0 +1,52 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: local-test-template
+  title: Local Test Template
+  description: This template is for local testing without pushing to GitHub.
+spec:
+  owner: development
+  type: service
+
+  parameters:
+    - title: Project Information
+      required:
+        - component_id
+      properties:
+        component_id:
+          title: Component name
+          type: string
+          description: Provide a component (microservice) name
+          pattern: "^([a-zA-Z][a-zA-Z0-9]*)(-[a-zA-Z0-9]+)*$"
+
+  steps:
+    - id: fetch-base
+      name: Fetch Template
+      action: fetch:template
+      input:
+        url: ./template
+        values:
+          app_name: ${{ parameters.component_id }}
+
+    - id: publish
+      name: Publish
+      action: publish:github
+      input:
+        allowedHosts:
+          - github.com
+        description: This is ${{ parameters.component_id }}
+        repoUrl: github.com?owner=limhoooo&repo=${{parameters.component_id}}
+        protectDefaultBranch: false
+        repoVisibility: public
+
+    - id: register
+      name: Register
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
+        catalogInfoPath: "/catalog-info.yaml"
+
+  output:
+    text:
+      - title: "🎉 Template Test Completed!"
+        content: "Project '{{ parameters.component_id }}' has been created. Download it from the UI."

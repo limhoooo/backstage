@@ -1,0 +1,3 @@
+site_name: "Hello World Docs"
+nav:
+  - Home: index.md
