@@ -17,7 +17,7 @@ spec:
           title: Component name
           type: string
           description: Provide a component (microservice) name
-          pattern: "^([a-zA-Z][a-zA-Z0-9]*)(-[a-zA-Z0-9]+)*$"
+          pattern: '^([a-zA-Z][a-zA-Z0-9]*)(-[a-zA-Z0-9]+)*$'
 
   steps:
     - id: fetch-base
@@ -44,9 +44,9 @@ spec:
       action: catalog:register
       input:
         repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
-        catalogInfoPath: "/catalog-info.yaml"
+        catalogInfoPath: '/catalog-info.yaml'
 
   output:
     text:
-      - title: "🎉 Template Test Completed!"
+      - title: '🎉 Template Test Completed!'
         content: "Project '{{ parameters.component_id }}' has been created. Download it from the UI."

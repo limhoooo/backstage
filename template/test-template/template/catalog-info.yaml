@@ -5,6 +5,7 @@ metadata:
   description: Hello world test component
   annotations:
     github.com/project-slug: limhoooo/${{values.app_name}}
+    jenkins.io/job-full-name: ${{values.app_name}}
     backstage.io/techdocs-ref: dir:.
 spec:
   type: service
