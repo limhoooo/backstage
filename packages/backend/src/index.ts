@@ -51,7 +51,8 @@ backend.add(import('@backstage/plugin-search-backend-module-techdocs'));
 // kubernetes
 backend.add(import('@backstage/plugin-kubernetes-backend'));
 
-backend.add(import('@backstage-community/plugin-jenkins-backend'));
+// backend.add(import('@backstage-community/plugin-jenkins-backend'));
 backend.add(import('@backstage/plugin-auth-backend-module-google-provider'));
 // backend.add(import('@axis-backstage/plugin-jira-dashboard-backend'));
+backend.add(import('@internal/plugin-jenkins-backend-module-jenkins'));
 backend.start();
