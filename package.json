@@ -56,6 +56,8 @@
   "dependencies": {
     "@axis-backstage/plugin-jira-dashboard": "^1.19.0",
     "@axis-backstage/plugin-jira-dashboard-backend": "^4.5.1",
+    "@azure/identity": "^4.10.0",
+    "@azure/keyvault-secrets": "^4.9.0",
     "@backstage-community/plugin-github-actions": "^0.10.0",
     "@backstage-community/plugin-jenkins": "^0.19.0",
     "@backstage/catalog-model": "^1.7.4",

@@ -8,8 +8,8 @@ auth:
   providers:
     github:
       development:
-        clientId: { VALUE }
-        clientSecret: { VALUE }
+        clientId: ${GITHUB_CLIENT_ID}
+        clientSecret: ${GITHUB_CLIENT_SECRET}
         ## uncomment if using GitHub Enterprise
         # enterpriseInstanceUrl: ${AUTH_GITHUB_ENTERPRISE_INSTANCE_URL}
         ## uncomment to set lifespan of user session
@@ -20,8 +20,8 @@ auth:
             - resolver: emailMatchingUserEntityProfileEmail
     google:
       development:
-        clientId: { VALUE }
-        clientSecret: { VALUE }
+        clientId: ${GOOGLE_CLIENT_ID}
+        clientSecret: ${GOOGLE_CLIENT_SECRET}
         signIn:
           resolvers:
             # See https://backstage.io/docs/auth/google/provider#resolvers for more resolvers
@@ -40,12 +40,12 @@ catalog:
       rules:
         - allow: [Group]
       # 템플릿 추가
-    - type: url
-      target: https://github.com/limhoooo/backstage-software-templates/blob/main/python-app/template.yaml
+    - type: file
+      target: ../../template/python-app/template.yaml
       rules:
         - allow: [Template]
-    - type: url
-      target: https://github.com/limhoooo/backstage-software-templates/blob/main/test-template/template.yaml
+    - type: file
+      target: ../../template/test-template/template.yaml
       rules:
         - allow: [Template]
 
@@ -79,15 +79,10 @@ techdocs:
 integrations:
   github:
     - host: github.com
-      token: { VALUE }
+      token: ${GITHUB_ACTION_TOKEN}
 
 jenkins:
+  # TODO: 다 필요없고 템플릿 생성시 추가 되면되지않을까 싶음
   baseUrl: http://localhost:8080
   username: admin
   projectCountLimit: 100
-  apiKey: { VALUE }
-
-jiraDashboard:
-  annotationPrefix: jira
-  token: JIRA_TOKEN
-  baseUrl: https://limhoooo.atlassian.net/rest/api/3/

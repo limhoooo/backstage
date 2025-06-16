@@ -81,7 +81,7 @@ import {
   EntityArgoCDHistoryCard,
   EntityArgoCDContent,
   isArgocdAvailable,
-} from '@roadiehq/backstage-plugin-argo-cd';
+} from '@internal/plugin-argocd';
 
 const techdocsContent = (
   <EntityTechdocsContent>
@@ -239,11 +239,7 @@ const serviceEntityPage = (
       <EntityJenkinsContent />
     </EntityLayout.Route>
 
-    <EntityLayout.Route
-      path="/argo-cd"
-      title="Argo CD"
-      if={e => Boolean(isArgocdAvailable(e))}
-    >
+    <EntityLayout.Route path="/argo-cd" title="Argo CD">
       <Grid container spacing={3} alignItems="stretch">
         <Grid item xs={12}>
           <EntityArgoCDOverviewCard />

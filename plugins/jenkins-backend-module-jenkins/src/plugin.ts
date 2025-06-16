@@ -51,14 +51,6 @@ export const jenkinsPlugin = createBackendPlugin({
         auth,
         httpAuth,
       }) {
-        logger.info(
-          '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',
-        ); // 👈 여기!
-        logger.info('✅ Jenkins backend plugin 초기화 시작'); // 👈 여기!
-        logger.info(
-          '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',
-        ); // 👈 여기!
-
         const jenkinsInfoProvider = DefaultJenkinsInfoProvider.fromConfig({
           auth,
           httpAuth,

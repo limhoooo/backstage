@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
+/**
+ * 06-01
+ * 에저 키볼트 sdk 추가
+ * apikey 관련된 코드 삭제
+ */
+
 import {
   AuthService,
   BackstageCredentials,
@@ -28,6 +34,8 @@ import {
   stringifyEntityRef,
 } from '@backstage/catalog-model';
 import { Config } from '@backstage/config';
+import { DefaultAzureCredential } from '@azure/identity';
+import { SecretClient } from '@azure/keyvault-secrets';
 
 /** @public */
 export interface JenkinsInfoProvider {
@@ -61,7 +69,6 @@ export interface JenkinsInstanceConfig {
   baseUrl: string;
   username: string;
   projectCountLimit?: number;
-  apiKey: string;
   crumbIssuer?: boolean;
   /**
    * Extra headers to send to Jenkins instance
@@ -112,7 +119,6 @@ export class JenkinsConfig {
     // Get these as optional strings and check to give a better error message
     const baseUrl = config.getOptionalString('jenkins.baseUrl');
     const username = config.getOptionalString('jenkins.username');
-    const apiKey = config.getOptionalString('jenkins.apiKey');
     const crumbIssuer = config.getOptionalBoolean('jenkins.crumbIssuer');
     const extraRequestHeaders = config.getOptional<
       JenkinsInstanceConfig['extraRequestHeaders']
@@ -121,17 +127,17 @@ export class JenkinsConfig {
       'jenkins.allowedBaseUrlOverrideRegex',
     );
 
-    if (hasNamedDefault && (baseUrl || username || apiKey)) {
+    if (hasNamedDefault && (baseUrl || username)) {
       throw new Error(
-        `Found both a named jenkins instance with name ${DEFAULT_JENKINS_NAME} and top level baseUrl, username or apiKey config. Use only one style of config.`,
+        `Found both a named jenkins instance with name ${DEFAULT_JENKINS_NAME} and top level baseUrl, username config. Use only one style of config.`,
       );
     }
 
-    const unnamedNonePresent = !baseUrl && !username && !apiKey;
-    const unnamedAllPresent = baseUrl && username && apiKey;
+    const unnamedNonePresent = !baseUrl && !username;
+    const unnamedAllPresent = baseUrl && username;
     if (!(unnamedAllPresent || unnamedNonePresent)) {
       throw new Error(
-        `Found partial default jenkins config. All (or none) of baseUrl, username and apiKey must be provided.`,
+        `Found partial default jenkins config. All (or none) of baseUrl, username must be provided.`,
       );
     }
 
@@ -142,7 +148,6 @@ export class JenkinsConfig {
           name: DEFAULT_JENKINS_NAME,
           baseUrl,
           username,
-          apiKey,
           extraRequestHeaders,
           crumbIssuer,
           allowedBaseUrlOverrideRegex,
@@ -311,26 +316,23 @@ export class DefaultJenkinsInfoProvider implements JenkinsInfoProvider {
       instanceConfig.baseUrl = overrideUrlValue;
     }
 
-    // const creds = Buffer.from(
-    //   `${instanceConfig.username}:${instanceConfig.apiKey}`,
-    //   'binary',
-    // ).toString('base64');
-    const customApitoken = DefaultJenkinsInfoProvider.getAPiToken(entity);
-
+    const customApitoken =
+      await DefaultJenkinsInfoProvider.getTokenFromAzureKeyValut(entity);
     const creds = Buffer.from(
       `${instanceConfig.username}:${customApitoken}`,
       'binary',
     ).toString('base64');
 
+    // TODO: 삭제 예정
     console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
     // job name 으로 key valut 찔러서 토큰을 받아온후
     // creds 를 만들어준다
     console.log(jenkinsAndJobNames);
     console.log(overrideUrlValue);
     console.log(instanceConfig);
-    console.log(instanceConfig.apiKey);
     console.log(creds);
-
+    console.log(entity);
+    console.log(entity.metadata.annotations);
     console.log(instanceConfig.username);
     console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
 
@@ -371,17 +373,31 @@ export class DefaultJenkinsInfoProvider implements JenkinsInfoProvider {
     ];
   }
 
-  // azure keyvalut api 호출
-  // 이름 확인해야함
-  private static getAPiToken(entity: Entity) {
-    console.log('getAPiTokengetAPiTokengetAPiTokengetAPiToken');
-    console.log(
-      entity.metadata.annotations?.[
-        DefaultJenkinsInfoProvider.OLD_JENKINS_ANNOTATION
-      ],
-    );
-    const apikey = '1160c032c734d50bc63a4cf9db4cbbfcaf';
-    return apikey;
+  /**
+   * Azure KeyValut API 호출
+   *
+   * jenkinstoken 기준으로 생성
+   * TODO: secret 내부 값은 변경될거라 생각됨
+   */
+  private static async getTokenFromAzureKeyValut(entity: Entity) {
+    try {
+      const credential = new DefaultAzureCredential();
+      const kvUrl = `https://jenkinstoken.vault.azure.net`;
+      const client = new SecretClient(kvUrl, credential);
+
+      // 생성된 프로젝트 명
+      // TODO: 단위서비스 코드가 섞인 형태로 변경되어야함 EX: [단위서비스코드]-[프로젝트명]
+      const catalogName = entity.metadata.name;
+      const secret = await client.getSecret(catalogName);
+      if (!secret) {
+        throw new Error(
+          `Secret '${catalogName}' not found in Key Vault at '${kvUrl}'.`,
+        );
+      }
+      return secret.value;
+    } catch (error) {
+      return console.error(error);
+    }
   }
 
   private static verifyUrlMatchesRegex(

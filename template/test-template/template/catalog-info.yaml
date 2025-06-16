@@ -5,8 +5,11 @@ metadata:
   description: Hello world test component
   annotations:
     github.com/project-slug: limhoooo/${{values.app_name}}
-    jenkins.io/job-full-name: ${{values.app_name}}
+    # TODO: 단위서비스코드 추가될것같음
+    # TODO: 아래 값 만들어진 젠킨스로 두개 테스트
+    jenkins.io/job-full-name: test123123,test-ho
     jenkins.io/override-base-url: test@a.com
+    argocd/app-name: ${{values.app_name}}
     backstage.io/techdocs-ref: dir:.
 spec:
   type: service

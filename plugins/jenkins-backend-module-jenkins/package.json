@@ -24,6 +24,8 @@
     "postpack": "backstage-cli package postpack"
   },
   "dependencies": {
+    "@azure/identity": "^4.10.0",
+    "@azure/keyvault-secrets": "^4.9.0",
     "@backstage/backend-plugin-api": "^1.2.1",
     "@backstage/catalog-client": "^1.10.0",
     "@backstage/catalog-model": "^1.7.4",
